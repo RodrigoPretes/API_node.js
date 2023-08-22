@@ -1,24 +1,20 @@
-//importando o require ou seja a requisiçaõ das rotas e busca pela especifica
 const { Router } = require("express");
-
+const multer = require("multer");
+const uploadConfig = require("../configs/upload")
 
 const UsersController = require ("../controllers/UsersController");
+const UserAvatarController = require ("../controllers/UserAvatarController");
+const ensureAuthenticated = require("../middlewares/ensureAuthenticated");
 
 const usersRoutes = Router();
-
-/*function myMiddleware(request, response, next){
-  console.log("Você passou pelo Middleware");
-  if(!request.body.isAdmin){
-    return response.json({message: "user unauthorized"});
-  };
-  next();
-}*/
-
+const upload = multer(uploadConfig.MULTER);
 
 const usersController = new UsersController();
+const userAvatarController = new UserAvatarController();
 
-//usersRoutes.use(myMiddleware);
 usersRoutes.post("/", usersController.create);
-usersRoutes.put("/:id",usersController.update);
-//exportando as rotas
+usersRoutes.put("/", ensureAuthenticated, usersController.update);
+usersRoutes.patch("/avatar", ensureAuthenticated, upload.single("avatar"), userAvatarController.update)
+
+
 module.exports = usersRoutes;
